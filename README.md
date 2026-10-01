@@ -61,24 +61,24 @@
 
 ### `search_listings`
 
-- **What it does:**
-- **Inputs:** <!-- name and type each: `max_price` (float), not "a price" -->
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** This function searches listings for an item matching a description. It optionally takes a size and price ceiling.
+- **Inputs:** `description` (string), `size` (string), `max_price` (float) <!-- name and type each: `max_price` (float), not "a price" -->
+- **Returns:** The function returns a list of dictionaries, which represent matching items. They are sorted by best match. Each dictionary should have the following keys: `id`, `title`, `description`, `category`, `style_tags`, `size`, `condition`, `price`, `colors`, `brand`, and `platform`.
+- **When it has nothing:** The function returns an empty list.
 
 ### `suggest_outfit`
 
-- **What it does:**
-- **Inputs:**
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** This function suggests an outfit or two, based on a given item and the user's wardrobe.
+- **Inputs:** `new_item` (dictionary), `wardrobe` (dictionary)
+- **Returns:** Depending on whether `wardrobe` is empty: if `wardrobe` is empty, the function will return general styling advice as a string. Otherwise, it returns a non-empty string with outfit suggestions. 
+- **When it has nothing:** If `wardrobe['items']` is empty, the model will be asked for styling advice for `new_item` and return those ideas.
 
 ### `create_fit_card`
 
-- **What it does:**
-- **Inputs:**
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** This function writes a short caption that someone might use about a post with their clothing item find. 
+- **Inputs:** `outfit` (string), `new_item` (dictionary)
+- **Returns:** A two to four sentence string to be used a potential caption. If the `outfit` string is empty or just whitespace, this function should return a descriptive message saying so.
+- **When it has nothing:** If the `outfit` string is empty or just whitespace, this function should return a descriptive message stating that `outfit` was empty.
 
 ---
 
@@ -96,6 +96,7 @@
      function have to be real. -->
 
 **Branch rule:**
+If `search_listings` returns an empty list, put a message in the session and stop. Otherwise, take the first result and go to `suggest_outfit`.
 
 **Where it lives:** `agent.py::run_agent`
 
