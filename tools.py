@@ -24,8 +24,43 @@ import config  # noqa: F401 — you'll use this in search_listings
 from generate import generate
 from utils.data_loader import load_listings
 
+import regex as re
+
 
 # ── Tool 1: search_listings ───────────────────────────────────────────────────
+
+STOPWORDS: {
+    'a', 'an', 'and', 'the', 'for', 'in', 'of'
+}
+
+def _keywords(text: str) -> set[str]:
+    """
+    Lowercase words worth matching on, removing stopwords
+    text: item description or user request to be looked through for keywords
+    """
+    words = re.findall(r"[a-z0-9]+", (text or "").lower())
+    return (w for w in words if w not in STOPWORDS and len(w) > 1)
+
+def _size_tokens(text: str) -> set[str]:
+    """Determine the garment size from text (search or item description), i.e. size L or waist 32 inches
+    text: text from which to find the garment size
+    """
+    # cleaned = re.sub(r"\([^)]*\)", " ", text or "") # drop parentheticals
+    cleaned = re.findall(r"\([^)]*\)", text or "") # drop everything but the parentheticals with the sizing inside ?
+    parts = [p.strip('()').upper() for p in cleaned]
+    return (p for p in parts if p)
+
+def _size_matches(wanted: str, listing: str) -> bool:
+    """
+    wanted: user request
+    listing_size: listing
+    """
+    if not wanted:
+        return True
+    listing_tokens = _size_tokens(listing)
+    if any(token.startswith("ONE SIZE") for token in listing_tokens):
+        return True
+    return bool(_size_tokens(wanted) & listing_tokens)
 
 def search_listings(
     description: str,
