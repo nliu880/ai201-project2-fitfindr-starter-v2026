@@ -29,6 +29,8 @@ tool calls and returns a fit card — in at least 4 of 5 tries.
      "my search is a plain keyword match and some phrasings will miss" is a
      real answer. -->
 
+My search for matching queries is through keyword matching, it is highly likely that some of the phrasings will not find a match according to my search function, hence we look for a successful run of all three tools 4/5 tries.
+
 ---
 
 ## 2. An impossible query stops before the second tool
@@ -40,9 +42,10 @@ Given a query that matches no listings, the agent stops before calling
 <!-- Why is 5 of 5 reasonable here when criterion 1 isn't? What's different
      about this path? -->
 
+`search_listings` does not call the model, so an unsucessful search for matching listings is not expensive. `suggest_outfit` does, however, and it is not designed for non-existent listings. Calling the model on non-existent listings may cause loops, and will be undoubtedly expensive. We want to avoid this in all situations, hence this criterion calls for an impossible query to stop before the second tool 100% of the time.
 ---
 
-## 3. Something about state
+## 3. In each situation where matching items are found, the item with the best match is successfully passed to `suggest_outfit`
 
 <!-- YOU WRITE THIS ONE.
 
@@ -54,15 +57,14 @@ Given a query that matches no listings, the agent stops before calling
      compares session["selected_item"] against what actually reached
      suggest_outfit is the shape you're after. -->
 
-
-
 **Why this target:**
 
+We want to ensure that the same item found is the same one that the nex tool recieves. A check at the beginning of `suggest_outfit` will ensure the best matching item from `search_listings` to `suggest_outfit`. This check and match will occur each time `search_listings` and `suggest_outfit` are called; the closest match item found by `search_listings` and received by `suggest_outfit` are the same 5 of 5 tries, or 100% of the successful listing searches if one of the tries does not end up being successful. This should be a simple pass from one function to the next, so getting it right all the time should be easy.
 
 
 ---
 
-## 4. Something about the fit card
+## 4. All fit card captions are under 250 characters in length
 
 <!-- YOU WRITE THIS ONE.
 
@@ -75,15 +77,15 @@ Given a query that matches no listings, the agent stops before calling
      sentence? A card longer than a caption anyone would post? Any of those can
      be turned into a number. -->
 
-
-
 **Why this target:**
+
+Captions for photos have a limited character count, one that the generated caption should abide by. This criterion asks that all generated captions are under 250 characters without requiring a specific number, 5/5 tries. If there is the case that what ends up being generated and returned is the error message for an empty `outfit`, 100% of **generated fit captions** are under 250 characters in length.
 
 
 
 ---
 
-## 5. Your choice
+## 5. When given a query with a price limit, the items returned by `search_listings` respect that price limit
 
 <!-- YOU WRITE THIS ONE TOO.
 
@@ -92,12 +94,9 @@ Given a query that matches no listings, the agent stops before calling
      search respects a price ceiling — anything, as long as it names a number
      or an observable outcome. -->
 
-
-
 **Why this target:**
 
-
-
+`search_listings` will return items that respect the max price limit 4/5 times. The method of searching the query will be through keyword and text matching, so it is possible that the requested price will not be found correctly in some situations.
 ---
 
 <!-- ─────────────────────────────────────────────────────────────────────────
