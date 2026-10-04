@@ -29,7 +29,7 @@ tool calls and returns a fit card — in at least 4 of 5 tries.
      "my search is a plain keyword match and some phrasings will miss" is a
      real answer. -->
 
-My search for matching queries is through keyword matching, it is highly likely that some of the phrasings will not find a match according to my search function, hence we look for a successful run of all three tools 4/5 tries.
+The search for matching queries is through keyword matching, it is highly likely that some of the phrasings will not find a match according to my search function, hence we look for a successful run of all three tools 4/5 tries.
 
 ---
 
@@ -96,7 +96,7 @@ Captions for photos have a limited character count, one that the generated capti
 
 **Why this target:**
 
-`search_listings` will return items that respect the max price limit 4/5 times. The method of searching the query will be through keyword and text matching, so it is possible that the requested price will not be found correctly in some situations.
+`search_listings` will return items that respect the max price limit 4/5 times. The method of searching the query will be through keyword and regex matching, so it is possible that the requested price will not be found correctly in some situations.
 ---
 
 <!-- ─────────────────────────────────────────────────────────────────────────
