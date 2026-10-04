@@ -29,7 +29,7 @@ import regex as re
 
 # ── Tool 1: search_listings ───────────────────────────────────────────────────
 
-STOPWORDS: {
+STOPWORDS = {
     'a', 'an', 'and', 'the', 'for', 'in', 'of'
 }
 
@@ -39,28 +39,60 @@ def _keywords(text: str) -> set[str]:
     text: item description or user request to be looked through for keywords
     """
     words = re.findall(r"[a-z0-9]+", (text or "").lower())
-    return (w for w in words if w not in STOPWORDS and len(w) > 1)
+    return {w for w in words if w not in STOPWORDS and len(w) > 1}
+
+def keyword_score(desc: str, listing: str) -> float:
+
+    desc_keywords = _keywords(desc)
+    list_keywords = _keywords(listing)
+
+    score = 0
+
+    for word in desc_keywords:
+        if word in list_keywords:
+            score += 1
+
+    return score / len(desc_keywords)
 
 def _size_tokens(text: str) -> set[str]:
     """Determine the garment size from text (search or item description), i.e. size L or waist 32 inches
     text: text from which to find the garment size
     """
-    # cleaned = re.sub(r"\([^)]*\)", " ", text or "") # drop parentheticals
-    cleaned = re.findall(r"\([^)]*\)", text or "") # drop everything but the parentheticals with the sizing inside ?
-    parts = [p.strip('()').upper() for p in cleaned]
-    return (p for p in parts if p)
+    size_tags = []
 
-def _size_matches(wanted: str, listing: str) -> bool:
+    text = text.lower()
+    text = re.sub(r"\/", " ", text) # replace / 
+
+    size_tags += [tag[1:-1] for tag in re.findall(r"\([^)]*\)", text)] # find all parentheticals and remove parentheses 
+    size_tags += re.findall(r"(?:m|x{0,2}[sl])", text) # find standalone sizes
+    size_tags += re.findall(r"one size", text) # any one size fit all types
+    size_tags += re.findall(r"w\d\d|l\d\d", text) # any waist or length measurements
+    size_tags += re.findall(r"us \d{1,2}", text) # shoe sizes?
+    
+    print('description:', text)
+    print('size tags:', size_tags)
+    print()
+
+    return set(size_tags)
+
+def _size_matches(request: str, listing: str) -> bool:
     """
-    wanted: user request
+    request: user request
     listing_size: listing
     """
-    if not wanted:
+    if not request:
         return True
+    
     listing_tokens = _size_tokens(listing)
-    if any(token.startswith("ONE SIZE") for token in listing_tokens):
+
+    if 'one size' in listing_tokens:
         return True
-    return bool(_size_tokens(wanted) & listing_tokens)
+    
+    return bool(_size_tokens(request) & listing_tokens)
+
+def categorize(desc: str) -> str:
+    # idk...
+    return category
 
 def search_listings(
     description: str,
@@ -112,9 +144,57 @@ def search_listings(
 
     Test it from a terminal before you move on:
         python -c "from tools import search_listings; print(search_listings('graphic tee', max_price=30))"
-    """
-    # TODO: replace this with your implementation
-    return []
+    """    
+    
+    listings = load_listings()
+
+    print('START:')
+    print()
+
+    # filter by type
+    # item_type = categorize(description)
+    # listings[:] = [listing for listing in listings if listing['category'] == item_type]
+
+    # filter by size
+    if size:
+        listings[:] = [listing for listing in listings if _size_matches(size, listing['size'])]
+    
+    # filter by price
+    if max_price:
+            listings[:] = [listing for listing in listings if listing['price'] <= max_price]
+    
+    # print('FILTERED:')
+    # for listing in listings:
+    #     print(listing)
+
+    scored = {}
+
+    # score each listing
+    for listing in listings:
+        score = keyword_score(description, listing['description'])
+        if score > 0:
+            scored[listing['id']] = [score, listing]
+
+    # if we have no matches at all
+    if len(scored) == 0:
+        return []
+
+    #sort the listings
+    scorted = {k: v for k, v in sorted(scored.items(), key = lambda item: item[1][0], reverse = True)}
+
+    # print()
+    # print()
+    # print('SCORING: ')
+    # print(scorted)
+    # print()
+    # print()
+
+    final_list = [scorted[key][1] for key in scorted.keys()]
+
+    if len(scorted) > config.SEARCH_RESULT_LIMIT:
+        return final_list[:config.SEARCH_RESULT_LIMIT]
+    else:
+       return final_list
 
 
 # ── Tool 2: suggest_outfit ────────────────────────────────────────────────────
@@ -147,8 +227,11 @@ def suggest_outfit(new_item: dict, wardrobe: dict) -> str:
     Test it from a terminal before you move on:
         python -c "from tools import suggest_outfit; from utils.data_loader import get_example_wardrobe, load_listings; print(suggest_outfit(load_listings()[0], get_example_wardrobe()))"
     """
-    # TODO: replace this with your implementation
-    return ""
+
+    if len(wardrobe['items']) == 0:
+        return generate(f'Provide general styling tips for this item.: {new_item}')
+    
+    return generate(f'Given this new item: {new_item}, create outfit combinations with this wardrobe: {wardrobe}')
 
 
 # ── Tool 3: create_fit_card ───────────────────────────────────────────────────
@@ -165,7 +248,7 @@ def create_fit_card(outfit: str, new_item: dict) -> str:
 
     Returns:
         A two-to-four sentence caption.
-        If `outfit` is empty or whitespace, return a descriptive message rather
+        If `outfit` is empty or whitespace, return a descriptive message of the error rather
         than raising.
 
     The caption should read like a real post rather than a product description,
@@ -187,5 +270,14 @@ def create_fit_card(outfit: str, new_item: dict) -> str:
     Test it from a terminal before you move on:
         python -c "from tools import create_fit_card; from utils.data_loader import load_listings; print(create_fit_card('jeans and white sneakers', load_listings()[0]))"
     """
-    # TODO: replace this with your implementation
-    return ""
+
+    outfit = outfit.strip()
+
+    if len(outfit) == 0:
+        return "No outfit provided! Something cannot be created from nothing."
+
+    prompt = f"Write a 2-4 sentence caption for this outfit ({outfit}), \
+            where the new item is {new_item}. The caption should read like a real post rather than a product description. \
+            Mention the new item, its price, and platform once each. Be specific about the vibe."
+
+    return generate(prompt)
