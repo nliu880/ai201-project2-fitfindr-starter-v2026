@@ -30,7 +30,14 @@ import regex as re
 # ── Tool 1: search_listings ───────────────────────────────────────────────────
 
 STOPWORDS = {
-    'a', 'an', 'and', 'the', 'for', 'in', 'of'
+    "what", "which", "who", "whom", "this", "that", "these", "those", "am", "is", "are", "was", \
+    "were", "be", "been", "being", "have", "had", "having", "do", "does", "did", "doing", \
+    "a", "an", "the", "and", "but", "if", "or", "because", "as", "until", "while", "of", "at", \
+    "by", "for", "with", "about", "against", "into", "through", "during", "before", "after", "to", \
+    "from", "up", "down", "in", "out", "on", "again", "further", "then", "once", "here", "there", \
+    "when", "where", "why", "how", "all", "any", "both", "each", "few", "more", "most", "other", \
+    "some", "such", "no", "nor", "not", "only", "own", "same", "so", "than", "too", "very", \
+    "can", "will", "just", "should", "now"
 }
 
 def _keywords(text: str) -> set[str]:
@@ -273,7 +280,7 @@ def create_fit_card(outfit: str, new_item: dict) -> str:
     if len(outfit) == 0:
         return "No outfit provided! Something cannot be created from nothing."
 
-    prompt = f"Write a 2-4 sentence caption for this outfit ({outfit}), \
+    prompt = f"Write a 2-4 sentence caption for this outfit: {outfit}, \
             where the new item is {new_item}. The caption should read like a real post rather than a product description. \
             Mention the new item, its price, and platform once each. Be specific about the vibe."
 
