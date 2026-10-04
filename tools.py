@@ -225,7 +225,7 @@ def suggest_outfit(new_item: dict, wardrobe: dict) -> str:
         python -c "from tools import suggest_outfit; from utils.data_loader import get_example_wardrobe, load_listings; print(suggest_outfit(load_listings()[0], get_example_wardrobe()))"
     """
 
-    if len(wardrobe['items']) == 0:
+    if len(wardrobe) == 0:
         return generate(f'Provide general styling tips for this item.: {new_item}')
     
     return generate(f'Given this new item: {new_item}, create outfit combinations with this wardrobe: {wardrobe}')
