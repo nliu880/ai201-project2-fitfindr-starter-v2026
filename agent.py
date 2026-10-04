@@ -202,6 +202,7 @@ def run_agent(query: str, wardrobe: dict) -> dict:
             "create_fit_card",
             inputs=session["selected_item"],
             returned=session["fit_card"],
+            note=len(session["fit_card"])
         )
 
     except ModelUnavailable as exc:
