@@ -68,10 +68,7 @@ def _size_tokens(text: str) -> set[str]:
     size_tags += re.findall(r"one size", text) # any one size fit all types
     size_tags += re.findall(r"w\d\d|l\d\d", text) # any waist or length measurements
     size_tags += re.findall(r"us \d{1,2}", text) # shoe sizes?
-    
-    print('description:', text)
-    print('size tags:', size_tags)
-    print()
+
 
     return set(size_tags)
 
@@ -148,21 +145,21 @@ def search_listings(
     
     listings = load_listings()
 
-    print('START:')
-    print()
+    # print('START:')
+    # print()
 
     # filter by type
     # item_type = categorize(description)
     # listings[:] = [listing for listing in listings if listing['category'] == item_type]
 
     # filter by size
-    if size:
+    if size is not None:
         listings[:] = [listing for listing in listings if _size_matches(size, listing['size'])]
     
     # filter by price
-    if max_price:
-            listings[:] = [listing for listing in listings if listing['price'] <= max_price]
-    
+    if max_price is not None:
+        listings[:] = [listing for listing in listings if listing['price'] <= max_price]
+
     # print('FILTERED:')
     # for listing in listings:
     #     print(listing)
