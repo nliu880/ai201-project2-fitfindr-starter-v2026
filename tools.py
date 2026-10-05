@@ -24,7 +24,7 @@ import config  # noqa: F401 — you'll use this in search_listings
 from generate import generate
 from utils.data_loader import load_listings
 
-import regex as re
+import re
 
 
 # ── Tool 1: search_listings ───────────────────────────────────────────────────
@@ -52,6 +52,9 @@ def keyword_score(desc: str, listing: str) -> float:
 
     desc_keywords = _keywords(desc)
     list_keywords = _keywords(listing)
+
+    if len(desc_keywords) == 0:
+        return 0
 
     score = 0
 
@@ -152,9 +155,6 @@ def search_listings(
     
     listings = load_listings()
 
-    # print('START:')
-    # print()
-
     # filter by type
     # item_type = categorize(description)
     # listings[:] = [listing for listing in listings if listing['category'] == item_type]
@@ -167,38 +167,12 @@ def search_listings(
     if max_price is not None:
         listings[:] = [listing for listing in listings if listing['price'] <= max_price]
 
-    # print('FILTERED:')
-    # for listing in listings:
-    #     print(listing)
+    listings[:] = [item for item in sorted(listings, key = lambda item: keyword_score(description, item['description']), reverse = True) if keyword_score(description, item['description']) > 0]
 
-    scored = {}
-
-    # score each listing
-    for listing in listings:
-        score = keyword_score(description, listing['description'])
-        if score > 0:
-            scored[listing['id']] = [score, listing]
-
-    # if we have no matches at all
-    if len(scored) == 0:
-        return []
-
-    #sort the listings
-    scorted = {k: v for k, v in sorted(scored.items(), key = lambda item: item[1][0], reverse = True)}
-
-    # print()
-    # print()
-    # print('SCORING: ')
-    # print(scorted)
-    # print()
-    # print()
-
-    final_list = [scorted[key][1] for key in scorted.keys()]
-
-    if len(scorted) > config.SEARCH_RESULT_LIMIT:
-        return final_list[:config.SEARCH_RESULT_LIMIT]
+    if len(listings) > config.SEARCH_RESULT_LIMIT:
+        return listings[:config.SEARCH_RESULT_LIMIT]
     else:
-       return final_list
+       return listings
 
 
 # ── Tool 2: suggest_outfit ────────────────────────────────────────────────────
@@ -232,7 +206,7 @@ def suggest_outfit(new_item: dict, wardrobe: dict) -> str:
         python -c "from tools import suggest_outfit; from utils.data_loader import get_example_wardrobe, load_listings; print(suggest_outfit(load_listings()[0], get_example_wardrobe()))"
     """
 
-    if len(wardrobe) == 0:
+    if len(wardrobe['items']) == 0:
         return generate(f'Provide general styling tips for this item.: {new_item}')
     
     return generate(f'Given this new item: {new_item}, create outfit combinations with this wardrobe: {wardrobe}')
