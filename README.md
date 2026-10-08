@@ -121,12 +121,12 @@ The query is parsed through regex as it doesn't cost anything and will always re
 
 **One full query**
 
-```
+```bash
 $ python app.py ask 'vintage graphic tee under $30, size M'
 [1] parse_query
       in:  vintage graphic tee under $30, size M
       out: dict with keys: description, size, max_price
-[2] search_listings (via MCP)
+[2] search_listings
       in:  dict with keys: description, size, max_price
       out: 3 items: Y2K Baby Tee — Butterfly Print, Mesh Long-Sleeve Top — Black, Vintage Knit Vest — Argyle Brown/Cream
       →    3 match(es)
@@ -178,14 +178,14 @@ $ python app.py ask 'vintage graphic tee under $30, size M'
 
 **The three tools, tested one at a time**
 
-```
+```bash
 $ python -c "from tools import search_listings; print(search_listings('graphic tee', max_price=30))"
 
 [{'id': 'lst_002', 'title': 'Y2K Baby Tee — Butterfly Print', 'description': 'Super cute early 2000s baby tee with butterfly graphic. Fitted crop length. Tag says medium but fits like a small.', 'category': 'tops', 'style_tags': ['y2k', 'vintage', 'graphic tee', 'cottagecore'], 'size': 'S/M', 'condition': 'excellent', 'price': 18.0, 'colors': ['white', 'pink', 'purple'], 'brand': None, 'platform': 'depop'}, {'id': 'lst_006', 'title': 'Graphic Tee — 2003 Tour Bootleg Style', 'description': 'Vintage-style bootleg tee with faded graphic. Slightly boxy fit. 100% cotton, soft and worn-in.', 'category': 'tops', 'style_tags': ['graphic tee', 'vintage', 'grunge', 'streetwear', 'band tee'], 'size': 'L', 'condition': 'good', 'price': 24.0, 'colors': ['black'], 'brand': None, 'platform': 'depop'}, {'id': 'lst_017', 'title': 'Mesh Long-Sleeve Top — Black', 'description': 'Sheer black mesh long-sleeve. Great for layering under a graphic tee or over a bralette. Stretchy material, fits true to size.', 'category': 'tops', 'style_tags': ['y2k', 'grunge', 'goth', 'layering'], 'size': 'S/M', 'condition': 'excellent', 'price': 15.0, 'colors': ['black'], 'brand': None, 'platform':'depop'}, {'id': 'lst_033', 'title': 'Vintage Band Tee — Faded Grey', 'description': 'Faded grey band-style tee with distressed graphic. Crew neck. Fits boxy. Well-loved but no holes or major damage.', 'category': 'tops', 'style_tags': ['vintage', 'grunge', 'band tee', 'graphic tee', 'streetwear'], 'size': 'L', 'condition': 'fair', 'price': 19.0, 'colors': ['grey', 'charcoal'], 'brand': None, 'platform': 'depop'}, {'id': 'lst_011', 'title': 'Low-Rise Cargo Pants — Khaki', 'description': 'Y2K era low-rise cargo pants. Lots of pockets. Khaki color, slightly distressed at the hems. Great for layering with a long tee.', 'category': 'bottoms', 'style_tags': ['y2k', 'cargo', '2000s', 'streetwear'], 'size': 'W29', 'condition': 'fair', 'price': 27.0, 'colors': ['khaki', 'tan'], 'brand': None, 'platform': 'poshmark'}, {'id': 'lst_015', 'title': 'Vintage Graphic Hoodie — Faded Black', 'description': 'Faded black pullover hoodie with barely-visible vintage graphic on the chest. Cozy interior. Some pilling but adds to the worn-in look.', 'category': 'tops', 'style_tags': ['vintage', 'grunge', 'graphic', 'streetwear'], 'size': 'L', 'condition': 'fair', 'price': 26.0, 'colors': ['black', 'charcoal'], 'brand': None, 'platform': 'depop'}]
 
 ```
 
-```
+```bash
 $ python -c "from tools import suggest_outfit; from utils.data_loader import get_example_wardrobe, load_listings; print(suggest_outfit(load_listings()[0], get_example_wardrobe()))"
 
 Here are three stylish outfit combinations featuring the new item (**Vintage Levi's 501 Jeans — `lst_001`**) paired with items from the existing wardrobe:
@@ -214,7 +214,7 @@ Here are three stylish outfit combinations featuring the new item (**Vintage Lev
 
 ```
 
-```
+```bash
 $ python -c "from tools import create_fit_card; from utils.data_loader import load_listings; print(create_fit_card('jeans and white sneakers', load_listings()[0]))"
 
 Nothing beats the effortless, lived-in feel of a truly classic denim fit paired with crisp white kicks. These vintage Levi's 501s bring that ultimate effortless streetwear vibe with the best medium wash fade at the knees. Grab this exact pair over on my Depop for just $38 before they're gone!
@@ -318,7 +318,7 @@ Suggestion 1 has some merit, in which I would hardcode a hashmap or something th
 **Real output from one try**, pasted as text, naming the file and function
 that produced it:
 
-```
+```bash
 
 ```
 
@@ -370,22 +370,162 @@ that produced it:
 
 **Happy path**
 
+```bash
+python app.py ask 'long sleeve green tshirt' --trace
+[1] parse_query
+      in:  long sleeve green tshirt
+      out: dict with keys: description, size, max_price
+[2] search_listings (via MCP)
+      in:  {'description': 'long sleeve green tshirt', 'size': None, 'max_price': None}
+      out: 6 items: Silk Button-Down — Sage Green, Mesh Long-Sleeve Top — Black, Vintage Polo Shirt — Forest Green … +3 more
+      →    6 match(es)
+[3] select_item
+      out: Silk Button-Down — Sage Green ($28.0, depop)
+[4] suggest_outfit
+      in:  Silk Button-Down — Sage Green ($28.0, depop)
+      out: Here are 3 outfit combinations featuring the **Silk Button-Down — Sage Green (`lst_029`)** paired with items f…
+      →    10 wardrobe item(s)
+[5] create_fit_card
+      in:  Silk Button-Down — Sage Green ($28.0, depop)
+      out: Obsessed with how this vintage sage green silk button-down ($28 on Depop) instantly elevates everything alread…
+      →    342
+
+  Found:    Silk Button-Down — Sage Green — $28.0 on depop
+
+  Outfit:   Here are 3 outfit combinations featuring the **Silk Button-Down — Sage Green (`lst_029`)** paired with items from your existing wardrobe:
+
+### Outfit 1: Effortless Earth Tones (Tonal & Minimal)
+*Highlighting the sage green with complementary neutral earth tones for a soft, cottagecore-meets-minimalist look.*
+* **Top (New):** Silk Button-Down — Sage Green (`lst_029`) — *worn fully buttoned or tucked in*
+* **Bottom:** Wide-leg khaki trousers (`w_002`)
+* **Accessory:** Brown leather belt (`w_009`)
+* **Bag:** Black crossbody bag (`w_010`) 
+* **Shoes:** Chunky white sneakers (`w_007`) or Black combat boots (`w_008`)
+* **Vibe:** Relaxed, polished, earthy, and breezy.
+
+### Outfit 2: The Casual Layer (Textured Streetwear Mix)
+*Using the flowy silk button-down open as a lightweight layer over a basic fitted top, paired with denim for contrast.*
+* **Base Top:** White ribbed tank top (`w_003`)
+* **Layer (New):** Silk Button-Down — Sage Green (`lst_029`) — *worn unbuttoned and open*
+* **Bottom:** Baggy straight-leg jeans, dark wash (`w_001`)
+* **Accessory:** Brown leather belt (`w_009`)
+* **Shoes:** Chunky white sneakers (`w_007`)
+* **Vibe:** 90s casual, effortless, and comfortable with a great mix of structured denim and fluid silk.
+
+### Outfit 3: Edgy Contrast (Vintage & Grunge Twist)
+*Pairing the soft, feminine vintage sage silk with heavy black textures to lean into a cool, grunge-adjacent contrast.*
+* **Top (New):** Silk Button-Down — Sage Green (`lst_029`)
+* **Bottom:** Baggy straight-leg jeans, dark wash (`w_001`)
+* **Outerwear:** Vintage black denim jacket (`w_006`) — *worn over the shoulders or unbuttoned shirt*
+* **Shoes:** Black combat boots (`w_008`)
+* **Bag:** Black crossbody bag (`w_010`)
+* **Vibe:** Cool-girl grunge, vintage-inspired, and slightly moody.
+
+  Fit card: Obsessed with how this vintage sage green silk button-down ($28 on Depop) instantly elevates everything already in my closet! Whether I'm styling it tucked into neutral trousers for a soft cottagecore vibe, wearing it open over a tank for 90s streetwear, or layering it with black denim for an edgy grunge twist, this flowy piece does it all.
+
+2 model calls this session, 1421 prompt + 608 output tokens
 ```
 
-```
+**Empty searches**
 
-**Empty search**
+- Empty search
+     ```bash
+     python app.py ask '$1 dior shirt'
+     [1] parse_query
+          in:  $1 dior shirt
+          out: dict with keys: description, size, max_price
+     [2] search_listings (via MCP)
+          in:  {'description': 'dior shirt', 'size': None, 'max_price': 1.0}
+          out: [] (empty)
+          →    0 match(es)
+     [3] branch
+          →    search returned []: stopping before suggest_outfit
 
-```
+     Nothing in the listings matched description 'dior shirt', under $1.
+     Things to change: try broader words — 'jacket' finds more than 'cropped corduroy jacket'; raise the price ceiling above $1.
 
-```
+     0 model calls this session
+     ```
+- Empty wardrobe
+     ```bash
+     python app.py ask 'vintage jacket' --empty-wardrobe
+     (running with an empty wardrobe)
+     [1] parse_query
+          in:  vintage jacket
+          out: dict with keys: description, size, max_price
+     [2] search_listings (via MCP)
+          in:  {'description': 'vintage jacket', 'size': None, 'max_price': None}
+          out: 9 items: Vintage Levi's 501 Jeans — Medium Wash, 90s Track Jacket — Navy/White Stripe, Graphic Tee — 2003 Tour Bootleg Style … +6 more
+          →    9 match(es)
+     [3] select_item
+          out: Vintage Levi's 501 Jeans — Medium Wash ($38.0, depop)
+     [4] suggest_outfit
+          in:  Vintage Levi's 501 Jeans — Medium Wash ($38.0, depop)
+          out: Here are versatile styling tips for the **Vintage Levi's 501 Jeans (Medium Wash)**, tailored for a Depop/stree…
+          →    0 wardrobe item(s)
+     [5] create_fit_card
+          in:  Vintage Levi's 501 Jeans — Medium Wash ($38.0, depop)
+          out: Channel that effortless 90s streetwear energy with these vintage Levi's 501s, featuring the most gorgeous medi…
+          →    362
 
-**On the MCP move:** <!-- what changed in your code, and whether anything
+     Found:    Vintage Levi's 501 Jeans — Medium Wash — $38.0 on depop
+
+     Outfit:   Here are versatile styling tips for the **Vintage Levi's 501 Jeans (Medium Wash)**, tailored for a Depop/streetwear audience:
+
+     ### **1. Casual Streetwear (The Everyday Look)**
+     *   **Top:** An oversized graphic tee (band tee or vintage skate brand), slightly tucked in.
+     *   **Footwear:** Classic white sneakers (like Nike Air Force 1s or Adidas Sambas).
+     *   **Accessories:** A canvas tote bag, a silver chain necklace, and a baseball cap. 
+     *   **Vibe:** Effortless, 90s-inspired daily wear.
+
+     ### **2. Elevated Vintage / Smart-Casual**
+     *   **Top:** A tucked-in ribbed black tank top or a crisp white button-down shirt (sleeves rolled up).
+     *   **Layer:** An oversized leather blazer or a distressed brown suede jacket.
+     *   **Footwear:** Black leather loafers or chunky platform boots.
+     *   **Accessories:** A black leather belt with a statement buckle and minimalist silver rings.
+
+     ### **3. Y2K / Grunge Aesthetic**
+     *   **Top:** A cropped baby tee, a distressed knit sweater, or a mesh long-sleeve top.
+     *   **Footwear:** Platform boots or beat-up Converse All-Stars.
+     *   **Accessories:** A nylon shoulder bag (baguette style) and wire-rimmed sunglasses.
+
+     ---
+
+     ### **💡 Bonus Tips for Listing Photos (If you're selling on Depop):**
+     *   **Show off the fit:** Since 501s are a classic straight-leg cut with a button fly, show them worn high-waisted with a belt to highlight the silhouette.
+     *   **Highlight the wash:** Take close-up photos near natural light to show the authentic fading at the knees, as buyers love genuine vintage wear.
+
+     Fit card: Channel that effortless 90s streetwear energy with these vintage Levi's 501s, featuring the most gorgeous medium wash and natural knee fading. Style them bagged out with a vintage graphic tee and Sambas for everyday wear, or dress them up with an oversized leather blazer and loafers. Grab this classic W30 L30 pair now on Depop for just $38 before they're gone!
+
+     1 model calls this session, 1 served from cache, 586 prompt + 85 output tokens
+     ```
+- Model unavailable
+     ```bash
+     python app.py ask 'gothic boots'     
+          [1] parse_query
+               in:  gothic boots
+               out: dict with keys: description, size, max_price
+          [2] search_listings (via MCP)
+               in:  {'description': 'gothic boots', 'size': None, 'max_price': None}
+               out: 1 items: Suede Chelsea Boots — Tan
+               →    1 match(es)
+          [3] select_item
+               out: Suede Chelsea Boots — Tan ($44.0, poshmark)
+          [4] model unavailable
+               →    stopping, search results kept
+
+          The model couldn't be reached, so the outfit and caption steps didn't run. The search worked — 1 listing(s) were found. Check GEMINI_API_KEY in your .env, then run the same query again.
+          What the service said: The model rejected your API key. Check GEMINI_API_KEY in your .env file, or create a fresh key at aistudio.google.com.
+
+          1 model calls this session
+     ```
+
+**On the MCP move:** 
+<!-- what changed in your code, and whether anything
 behaved differently afterwards. If the rewire didn't work, say exactly where it
 broke — the error text and the last thing that worked. That earns the point in
 full. -->
-
-
+Previously, we had directly called `search_listings` from `tools.py` to be used in `agent.py`. Now, we rework calling the tool by wrapping it in an MCP. There were no changes in the output. It is just a different way of calling the tool.
 
 ---
 
