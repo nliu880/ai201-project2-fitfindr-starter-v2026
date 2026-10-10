@@ -39,10 +39,10 @@ Given a query that matches no listings, the agent stops before calling
 `suggest_outfit` and returns a message naming what to change — 5 of 5 tries.
 
 **Why this target:**
-<!-- Why is 5 of 5 reasonable here when criterion 1 isn't? What's different
-     about this path? -->
+<!-- Why is 5 of 5 reasonable here when criterion 1 isn't? What's different about this path? -->
 
 `search_listings` does not call the model, so an unsucessful search for matching listings is not expensive. `suggest_outfit` does, however, and it is not designed for non-existent listings. Calling the model on non-existent listings may cause loops, and will be undoubtedly expensive. We want to avoid this in all situations, hence this criterion calls for an impossible query to stop before the second tool 100% of the time.
+
 ---
 
 ## 3. In each situation where matching items are found, the item with the best match is successfully passed to `suggest_outfit`
@@ -97,6 +97,7 @@ Captions for photos have a limited character count, one that the generated capti
 **Why this target:**
 
 `search_listings` will return items that respect the max price limit 4/5 times. The method of searching the query will be through keyword and regex matching, so it is possible that the requested price will not be found correctly in some situations.
+
 ---
 
 <!-- ─────────────────────────────────────────────────────────────────────────
