@@ -309,17 +309,129 @@ Suggestion 1 has some merit, in which I would hardcode a hashmap or something th
 
 | Criterion | Target | Try 1 | Try 2 | Try 3 | Try 4 | Try 5 | Verdict |
 |---|---|---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |  |  |
+| 1. matching query completes | PASS | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 2. impossible query stops early | PASS | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 3. best matching item successfully passed | PASS | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 4. fit_card captions are under 250 characters | FAIL | FAIL | FAIL | FAIL | FAIL | FAIL | (0/5) |
+| 5. price limit enforced | PASS | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+
+**Note:** The PASS/FAIL marks for criterions 3 and 4 are marked by taking into account all non-early stopping queries for that try. In other words, if a try is marked PASS, that means all scenarios that ran to completion (regardless of whether that is 5/5 scenarios or not) passed that criterion. A criterion is marked FAIL for a try if any one of the applicable scenarios did not meet the criterion.
 
 **Real output from one try**, pasted as text, naming the file and function
 that produced it:
 
-```bash
+**Note:**
+The following is copied from output in the command line produced by `python run_eval.py --label before`. Only output from Try 1 is copied here.
 
+```bash
+% python run_eval.py --label before
+Cache is OFF for this run — that's deliberate.
+
+matching query completes  (example wardrobe)
+  query: vintage graphic tee under $30
+[1] parse_query
+      in:  vintage graphic tee under $30
+      out: dict with keys: description, size, max_price
+[2] search_listings (via MCP)
+      in:  {'description': 'vintage graphic tee', 'size': None, 'max_price': 30.0}
+      out: 8 items: Graphic Tee — 2003 Tour Bootleg Style, Y2K Baby Tee — Butterfly Print, Vintage Graphic Hoodie — Faded Black … +5 more
+      →    8 match(es)
+[3] select_item
+      out: Graphic Tee — 2003 Tour Bootleg Style ($24.0, depop)
+[4] suggest_outfit
+      in:  Graphic Tee — 2003 Tour Bootleg Style ($24.0, depop)
+      out: Here are three outfit combinations featuring the new **Graphic Tee — 2003 Tour Bootleg Style** (`lst_006`) sty…
+      →    10 wardrobe item(s)
+[5] create_fit_card
+      in:  Graphic Tee — 2003 Tour Bootleg Style ($24.0, depop)
+      out: Channeling major 2000s concert vibes with this vintage-style bootleg tee, snagged for just $24 on Depop! I lov…
+      →    373
+  try 1: completed — fit card 373 chars
+```
+[ continued]
+```bash
+impossible query stops early  (example wardrobe)
+  query: designer ballgown size XXS under $5
+[1] parse_query
+      in:  designer ballgown size XXS under $5
+      out: dict with keys: description, size, max_price
+[2] search_listings (via MCP)
+      in:  {'description': 'designer ballgown', 'size': 'XXS', 'max_price': 5.0}
+      out: [] (empty)
+      →    0 match(es)
+[3] branch
+      →    search returned []: stopping before suggest_outfit
+  try 1: stopped early — Nothing in the listings matched description 'designer ballgo
+```
+[ continued]
+```bash
+empty wardrobe  (empty wardrobe)
+  query: denim jacket under $50
+[1] parse_query
+      in:  denim jacket under $50
+      out: dict with keys: description, size, max_price
+[2] search_listings (via MCP)
+      in:  {'description': 'denim jacket', 'size': None, 'max_price': 50.0}
+      out: 5 items: Denim Jacket — Light Wash, Cropped, 90s Track Jacket — Navy/White Stripe, High-Waisted Denim Shorts — Cutoff …+2 more
+      →    5 match(es)
+[3] select_item
+      out: Denim Jacket — Light Wash, Cropped ($42.0, poshmark)
+[4] suggest_outfit
+      in:  Denim Jacket — Light Wash, Cropped ($42.0, poshmark)
+      out: Here are some versatile styling tips for the **Wrangler Light Wash Cropped Denim Jacket**, tailored to its vin…
+      →    0 wardrobe item(s)
+[5] create_fit_card
+      in:  Denim Jacket — Light Wash, Cropped ($42.0, poshmark)
+      out: Leaning hard into that vintage streetwear energy with this cropped Wrangler light wash denim jacket—the ultima…
+      →    273
+  try 1: completed — fit card 273 chars
+```
+[ continued]
+```bash
+state criterion test  (example wardrobe)
+  query: long sleeve green shirt
+[1] parse_query
+      in:  long sleeve green shirt
+      out: dict with keys: description, size, max_price
+[2] search_listings (via MCP)
+      in:  {'description': 'long sleeve green shirt', 'size': None, 'max_price': None}
+      out: 7 items: Silk Button-Down — Sage Green, Mesh Long-Sleeve Top — Black, Vintage Polo Shirt — Forest Green … +4 more
+      →    7 match(es)
+[3] select_item
+      out: Silk Button-Down — Sage Green ($28.0, depop)
+[4] suggest_outfit
+      in:  Silk Button-Down — Sage Green ($28.0, depop)
+      out: Here are 3 outfit combinations featuring the new **Silk Button-Down — Sage Green** (`lst_029`) styled with ite…
+      →    10 wardrobe item(s)
+[5] create_fit_card
+      in:  Silk Button-Down — Sage Green ($28.0, depop)
+      out: Three ways I'm styling this dreamy sage green silk button-down, from minimalist earth tones to 90s streetwear …
+      →    213
+  try 1: completed — fit card 213 chars
+```
+[continued]
+```bash
+price limit enforced  (example wardrobe)
+  query: jeans under $36
+[1] parse_query
+      in:  jeans under $36
+      out: dict with keys: description, size, max_price
+[2] search_listings (via MCP)
+      in:  {'description': 'jeans', 'size': None, 'max_price': 36.0}
+      out: 2 items: Baggy Carpenter Jeans — Dark Wash, Straight Leg Black Jeans — Faded
+      →    2 match(es)
+[3] select_item
+      out: Baggy Carpenter Jeans — Dark Wash ($36.0, depop)
+  [rate limit] 15 requests used this minute. Waiting 34s. This is normal.
+[4] suggest_outfit
+      in:  Baggy Carpenter Jeans — Dark Wash ($36.0, depop)
+      out: Here are three outfit combinations featuring the new item (**Baggy Carpenter Jeans — Dark Wash**, `lst_031`) p…
+      →    10 wardrobe item(s)
+[5] create_fit_card
+      in:  Baggy Carpenter Jeans — Dark Wash ($36.0, depop)
+      out: Channeling major 90s workwear vibes with these Baggy Carpenter Jeans in Dark Wash. Snagged them on Depop for j…
+      →    268
+  try 1: completed — fit card 268 chars
 ```
 
 ---
@@ -360,7 +472,7 @@ that produced it:
 
 <!-- One full run, printed step by step, with the MCP call visible in it.
 
-     `python app.py ask '...' --trace` once you've added the trace.step()
+     `python app.py ask '' --trace` once you've added the trace.step()
      calls in Milestone 2.
 
      Worth pasting BOTH the happy path and the empty-search path. The empty
