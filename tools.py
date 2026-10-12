@@ -256,6 +256,7 @@ def create_fit_card(outfit: str, new_item: dict) -> str:
 
     prompt = f"Write a 2-4 sentence caption for this outfit: {outfit}, \
             where the new item is {new_item}. The caption should read like a real post rather than a product description. \
-            Mention the new item, its price, and platform once each. Be specific about the vibe."
+            Mention the new item, its price, and platform once each. Be specific about the vibe and do not let the caption \
+            be over 250 characters."
 
     return generate(prompt)

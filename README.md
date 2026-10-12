@@ -650,24 +650,28 @@ Previously, we had directly called `search_listings` from `tools.py` to be used 
 
 **What I changed:**
 
+I added a line to my `create_fit_card` prompt, requiring that the generated caption be no more than 250 characters.
+
 **Which failure it was meant to fix:**
+
+This is meant to address criterion 4, which requires that all fit card captions are under 250 characters.
 
 ### Run Log — After
 
 | Criterion | Target | Try 1 | Try 2 | Try 3 | Try 4 | Try 5 | Verdict |
 |---|---|---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |  |  |
+| 1. matching query completes | PASS | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 2. impossible query stops early | PASS | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 3. best matching item successfully passed | PASS | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 4. fit_card captions are under 250 characters | PASS | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 5. price limit enforced | PASS | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
 
 **Did it help, and how do I know:**
 
 <!-- If it made things worse, say that. Honestly reported, that earns full
      credit and is more interesting than one that worked. -->
 
-
+After adding a line to the fit card generation prompt requiring captions be under 250 characters, all the generated fit captions match the previously missed criterion. Checking the notes of each trace shows the character count of the fit card (a line I added to `agent.py`) to be under 250 characters.
 
 ---
 
