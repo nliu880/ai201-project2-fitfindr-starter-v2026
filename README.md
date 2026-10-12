@@ -680,7 +680,7 @@ After adding a line to the fit card generation prompt requiring captions be unde
 <!-- For each criterion still missed: what you'd do, and why you stopped where
      you did. "I ran out of time" is fine if it's true. Pretending nothing is
      left is not. -->
-
+     All my criterion have passed. In the future, I would like to add a method of determining the type of item being looked for (tops, bottoms, shoes, etc.) and filter the search based off that. I would also look into moving one of the other tools into an MCP client. 
 
 
 <!-- ═════════════════════════════════════════════════════════════════════
