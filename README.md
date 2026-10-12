@@ -312,7 +312,7 @@ Suggestion 1 has some merit, in which I would hardcode a hashmap or something th
 | 1. matching query completes | PASS | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
 | 2. impossible query stops early | PASS | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
 | 3. best matching item successfully passed | PASS | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
-| 4. fit_card captions are under 250 characters | FAIL | FAIL | FAIL | FAIL | FAIL | FAIL | (0/5) |
+| 4. fit_card captions are under 250 characters | FAIL | FAIL | FAIL | FAIL | FAIL | FAIL | MISSED (0/5) |
 | 5. price limit enforced | PASS | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
 
 **Note:** The PASS/FAIL marks for criterions 3 and 4 are marked by taking into account all non-early stopping queries for that try. In other words, if a try is marked PASS, that means all scenarios that ran to completion (regardless of whether that is 5/5 scenarios or not) passed that criterion. A criterion is marked FAIL for a try if any one of the applicable scenarios did not meet the criterion.
@@ -456,15 +456,15 @@ price limit enforced  (example wardrobe)
 
 | # | Criterion | Target | Verdict | How I decided |
 |---|---|---|---|---|
-| 1 |  |  |  |  |
-| 2 |  |  |  |  |
-| 3 |  |  |  |  |
-| 4 |  |  |  |  |
-| 5 |  |  |  |  |
+| 1 | matching query completes | MET (5/5) | This criterion was tested with a specific scenario, and it passed all five tries. |
+| 2 | impossible query stops early | MET (5/5) | The impossible query stopped after not finding any matching items each try. |
+| 3 | best matching item successfully passed | MET (5/5) | The best matching item was printed out in the trace after it was picked, and also printed out again at the start of `suggest_outfit`. The items matched in each try across all applicable scnearios. |
+| 4 | fit_card captions are under 250 characters | MISSED (0/5) | Of all generated fit cards (20 across 4 scenarios and 5 tries), only 4 of them were under 250 characters, all for the same query. However, not once across all 4 scenarios in a try were all the fit captions under 250 characters, so this criterion was not met. | 
+| 5 | price limit enforced | MET (5/5) | An upper price limit was enforced each time across all 5 tries for the scenario designed for an inclusive upper limit price. |
 
 **Diagnoses**
 
-
+For my missed criterion (that generated fit captions were under 250 characters), no try across all applicable scenarios managed to get the proper length fit caption. I believe this is an error in the tool `create_fit_card`. All the correct information about outfits or the clothing piece are passed to prompt the LLM model, but the character count limit was not. The model therefore didn't know that I was trying to keep fit captions under 250 characters. 
 
 ---
 
